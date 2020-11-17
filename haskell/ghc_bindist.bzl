@@ -281,7 +281,8 @@ def _ghc_bindist_impl(ctx):
         execute_or_fail_loudly(ctx, ["./configure", "--prefix", bindist_dir.realpath])
         execute_or_fail_loudly(ctx, ["make", "install"])
         ctx.file("patch_bins", executable = True, content = r"""#!/usr/bin/env bash
-grep --files-with-matches --null {bindist_dir} bin/* | xargs -0 -n1 \
+find bin -type f -print0 | xargs -0 \
+grep --files-with-matches --null {bindist_dir} | xargs -0 -n1 \
     sed -i.bak \
         -e '2i\
           DISTDIR="$( dirname "$(resolved="$0"; while tmp="$(readlink "$resolved")"; do resolved="$tmp"; done; echo "$resolved")" )/.."' \
